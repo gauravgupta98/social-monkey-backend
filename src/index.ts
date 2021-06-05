@@ -3,6 +3,7 @@ import cors from "cors";
 import firebase from "firebase";
 
 import db from "./utils/firebase";
+import { Post } from "./types";
 
 const app = express();
 
@@ -19,9 +20,9 @@ app.get("/getPosts", (_request, response) => {
   db.collection("posts")
     .get()
     .then((data) => {
-      let posts: firebase.firestore.DocumentData[] = [];
+      let posts: Post[] = [];
       data.forEach((doc) => {
-        posts.push(doc.data());
+        posts.push({ postId: doc.id, data: doc.data() });
       });
       return response.status(200).json(posts);
     })
