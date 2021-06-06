@@ -2,7 +2,7 @@ import express, { request, response } from "express";
 import cors from "cors";
 import firebase from "firebase";
 
-import db from "./utils/firebase";
+import db, { auth } from "./utils/firebase";
 import { Post } from "./types";
 
 const app = express();
@@ -18,6 +18,7 @@ app.get("/", (_request, response) =>
 
 app.get("/getPosts", (_request, response) => {
   db.collection("posts")
+    .orderBy("createdAt", "desc")
     .get()
     .then((data) => {
       let posts: Post[] = [];
@@ -33,19 +34,72 @@ app.post("/createPost", (request, response) => {
   const newPost = {
     body: request.body.body,
     username: request.body.username,
-    createdAt: firebase.firestore.Timestamp.fromDate(new Date()),
+    createdAt: new Date().toISOString(),
   };
 
   db.collection("posts")
     .add(newPost)
     .then((doc) => {
-      response
+      return response
         .status(200)
         .json({ message: `Post ${doc.id} created successfully` });
     })
     .catch((error) => {
-      response.status(500).json({ error: "Something went wrong" });
       console.error(error);
+      return response
+        .status(500)
+        .json({ error: `Something went wrong. Error: ${error.code}` });
+    });
+});
+
+app.post("/signUp", (request, response) => {
+  const newUser = {
+    email: request.body?.email,
+    password: request.body?.password,
+    confirmPassword: request.body?.confirmPassword,
+    username: request.body?.username,
+  };
+
+  let token: string | undefined, userId: string | undefined;
+
+  db.doc(`/users/${newUser.username}`)
+    .get()
+    .then((doc) => {
+      if (doc?.exists) {
+        response
+          .status(400)
+          .json({ username: `This username is already taken` });
+      } else {
+        return auth.createUserWithEmailAndPassword(
+          newUser.email,
+          newUser.password
+        );
+      }
+    })
+    .then((data) => {
+      userId = data?.user?.uid;
+      return data?.user?.getIdToken();
+    })
+    .then((idToken) => {
+      token = idToken;
+      const userCredentials = {
+        username: newUser.username,
+        email: newUser.email,
+        createdAt: new Date().toISOString(),
+        userId,
+      };
+      return db.doc(`/users/${newUser.username}`).set(userCredentials);
+    })
+    .then(() => response.status(201).json({ token }))
+    .catch((error) => {
+      console.error(error);
+      if (error.code === "auth/email-already-in-use") {
+        return response.status(400).json({ email: "Email is already in use" });
+      } else {
+        response
+          .status(500)
+          .json({ error: "Something went wrong, please try again later" });
+      }
     });
 });
 
