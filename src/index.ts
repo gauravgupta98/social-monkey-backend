@@ -1,9 +1,9 @@
 import express, { request, response } from "express";
 import cors from "cors";
-import firebase from "firebase";
 
 import db, { auth } from "./utils/firebase";
-import { Post } from "./types";
+import { Post, User } from "./types";
+import { validateSignupData } from "./utils/validator";
 
 const app = express();
 
@@ -53,12 +53,16 @@ app.post("/createPost", (request, response) => {
 });
 
 app.post("/signUp", (request, response) => {
-  const newUser = {
+  const newUser: User = {
     email: request.body?.email,
     password: request.body?.password,
     confirmPassword: request.body?.confirmPassword,
     username: request.body?.username,
   };
+
+  const { valid, errors } = validateSignupData(newUser);
+
+  if (!valid) return response.status(400).json(errors);
 
   let token: string | undefined, userId: string | undefined;
 
