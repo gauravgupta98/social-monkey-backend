@@ -1,4 +1,4 @@
-import { User } from "../types";
+import { UserDataLogin, UserDataSignUp } from "../types";
 
 /**
  * Validates the email
@@ -23,25 +23,36 @@ const isEmpty = (string: string): boolean => {
 };
 
 const valueIsEmpty: string = "Must not be empty";
+const invalidRequestBody: string =
+  "Fatal! Parameters in request body are missing. Please provide all the required parameters to continue";
 
 /**
  * Validates the data which is passed by user for signing up
  * @param data The user data object
  * @returns Object with two values: erros (object) - containg all the errors found and valid (boolean) - whether the data is valid or not.
  */
-const validateSignupData = (data: User) => {
+const validateSignupData = (data: UserDataSignUp) => {
   let errors: any = {};
 
-  if (isEmpty(data.email)) {
-    errors.email = valueIsEmpty;
-  } else if (!isEmail(data.email)) {
-    errors.email = "Must be a valid Email Address";
-  }
+  if (
+    data.email === undefined ||
+    data.password === undefined ||
+    data.confirmPassword === undefined ||
+    data.username === undefined
+  ) {
+    errors.error = invalidRequestBody;
+  } else {
+    if (isEmpty(data.email)) {
+      errors.email = valueIsEmpty;
+    } else if (!isEmail(data.email)) {
+      errors.email = "Must be a valid Email Address";
+    }
 
-  if (isEmpty(data.username)) errors.username = valueIsEmpty;
-  if (isEmpty(data.password)) errors.password = valueIsEmpty;
-  if (data.password !== data.confirmPassword)
-    errors.confirmPassword = "Passwords must match";
+    if (isEmpty(data.username)) errors.username = valueIsEmpty;
+    if (isEmpty(data.password)) errors.password = valueIsEmpty;
+    if (data.password !== data.confirmPassword)
+      errors.confirmPassword = "Passwords must match";
+  }
 
   return {
     errors,
@@ -49,4 +60,25 @@ const validateSignupData = (data: User) => {
   };
 };
 
-export { validateSignupData };
+/**
+ * Validates the data which is passed by user for logging in
+ * @param data The user data object
+ * @returns Object with two values: erros (object) - containg all the errors found and valid (boolean) - whether the data is valid or not.
+ */
+const validateLoginData = (data: UserDataLogin) => {
+  let errors: any = {};
+
+  if (data.email === undefined || data.password === undefined) {
+    errors.error = invalidRequestBody;
+  } else {
+    if (isEmpty(data.email)) errors.email = valueIsEmpty;
+    if (isEmpty(data.password)) errors.password = valueIsEmpty;
+  }
+
+  return {
+    errors,
+    valid: Object.keys(errors).length === 0,
+  };
+};
+
+export { validateSignupData, validateLoginData };

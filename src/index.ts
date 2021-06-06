@@ -1,9 +1,9 @@
-import express, { request, response } from "express";
+import express from "express";
 import cors from "cors";
 
 import db, { auth } from "./utils/firebase";
-import { Post, User } from "./types";
-import { validateSignupData } from "./utils/validator";
+import { Post, UserDataSignUp, UserDataLogin } from "./types";
+import { validateLoginData, validateSignupData } from "./utils/validator";
 
 const app = express();
 
@@ -53,11 +53,11 @@ app.post("/createPost", (request, response) => {
 });
 
 app.post("/signUp", (request, response) => {
-  const newUser: User = {
-    email: request.body?.email,
-    password: request.body?.password,
-    confirmPassword: request.body?.confirmPassword,
-    username: request.body?.username,
+  const newUser: UserDataSignUp = {
+    email: request.body.email,
+    password: request.body.password,
+    confirmPassword: request.body.confirmPassword,
+    username: request.body.username,
   };
 
   const { valid, errors } = validateSignupData(newUser);
@@ -104,6 +104,32 @@ app.post("/signUp", (request, response) => {
           .status(500)
           .json({ error: "Something went wrong, please try again later" });
       }
+    });
+});
+
+app.post("/login", (request, response) => {
+  const user: UserDataLogin = {
+    email: request.body.email,
+    password: request.body.password,
+  };
+
+  const { valid, errors } = validateLoginData(user);
+
+  if (!valid) return response.status(400).json(errors);
+
+  auth
+    .signInWithEmailAndPassword(user.email, user.password)
+    .then((data) => {
+      return data.user?.getIdToken();
+    })
+    .then((token) => {
+      return response.json({ token });
+    })
+    .catch((error) => {
+      console.error(error);
+      return response.status(403).json({
+        error: "Wrong credentials, please try again with valid credentials",
+      });
     });
 });
 

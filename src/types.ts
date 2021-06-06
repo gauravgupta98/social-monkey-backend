@@ -5,9 +5,14 @@ export type Post = {
   data: firebase.firestore.DocumentData;
 };
 
-export interface User {
+export interface UserDataSignUp {
   email: string;
   password: string;
   confirmPassword: string;
   username: string;
+}
+
+export interface UserDataLogin {
+  email: string;
+  password: string;
 }
