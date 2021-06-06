@@ -29,7 +29,7 @@ const invalidRequestBody: string =
 /**
  * Validates the data which is passed by user for signing up
  * @param data The user data object
- * @returns Object with two values: erros (object) - containg all the errors found and valid (boolean) - whether the data is valid or not.
+ * @returns Object with two values: errors (object) - containg all the errors found and valid (boolean) - whether the data is valid or not.
  */
 const validateSignupData = (data: UserDataSignUp) => {
   let errors: any = {};
@@ -63,7 +63,7 @@ const validateSignupData = (data: UserDataSignUp) => {
 /**
  * Validates the data which is passed by user for logging in
  * @param data The user data object
- * @returns Object with two values: erros (object) - containg all the errors found and valid (boolean) - whether the data is valid or not.
+ * @returns Object with two values: errors (object) - containg all the errors found and valid (boolean) - whether the data is valid or not.
  */
 const validateLoginData = (data: UserDataLogin) => {
   let errors: any = {};
