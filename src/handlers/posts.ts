@@ -1,6 +1,11 @@
 import db from "../utils/firebase";
 import { Post } from "../types";
 
+/**
+ * Gets all the posts from the database. Returns the Posts array containing all the posts.
+ * @param request The request object
+ * @param response The response object
+ */
 export const getPosts = (_request: any, response: any) => {
   db.collection("posts")
     .orderBy("createdAt", "desc")
@@ -15,6 +20,11 @@ export const getPosts = (_request: any, response: any) => {
     .catch((error) => console.error(error));
 };
 
+/**
+ * Handles creation of a new post. User must pass body message of the post.
+ * @param request The request object
+ * @param response The response object
+ */
 export const createPost = (request: any, response: any) => {
   const newPost = {
     body: request.body.body,

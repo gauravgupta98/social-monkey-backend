@@ -1,8 +1,4 @@
-import admin from "firebase-admin";
-
-import db, { firebaseConfig } from "./firebase";
-
-admin.initializeApp(firebaseConfig);
+import db, { admin } from "./firebase";
 
 /**
  * Authorizes any request by validating the authorization header from request object.
