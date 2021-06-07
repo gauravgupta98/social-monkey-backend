@@ -4,6 +4,7 @@ import cors from "cors";
 import db, { auth } from "./utils/firebase";
 import { Post, UserDataSignUp, UserDataLogin } from "./types";
 import { validateLoginData, validateSignupData } from "./utils/validator";
+import Authorize from "./utils/authentication";
 
 const app = express();
 
@@ -30,12 +31,17 @@ app.get("/getPosts", (_request, response) => {
     .catch((error) => console.error(error));
 });
 
-app.post("/createPost", (request, response) => {
+app.post("/createPost", Authorize, (request, response) => {
   const newPost = {
     body: request.body.body,
     username: request.body.username,
     createdAt: new Date().toISOString(),
   };
+
+  if (newPost.body === undefined || newPost.body.trim() === "")
+    return response
+      .status(400)
+      .json({ body: "Body of post must not be empty" });
 
   db.collection("posts")
     .add(newPost)

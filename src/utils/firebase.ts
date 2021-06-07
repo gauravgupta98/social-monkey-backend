@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 import * as firebase from "firebase";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyDgkWn5izw3H9eMDWTUYQadacWrwsrhQFI",
   authDomain: "socialmonkeysss.firebaseapp.com",
   projectId: "socialmonkeysss",
