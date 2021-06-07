@@ -40,6 +40,8 @@ export default (request: any, response: any, next: Function) => {
     })
     .catch((error) => {
       console.error("Error while verifying token: ", error);
-      return response.status(403).json(error);
+      return response
+        .status(403)
+        .json({ error: "Invalid Token! Error while verifying token" });
     });
 };
