@@ -45,6 +45,7 @@ export const signUp = (request: any, response: any) => {
         username: newUser.username,
         email: newUser.email,
         createdAt: new Date().toISOString(),
+        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/no-img.png?alt=media`,
         userId,
       };
       return db.doc(`/users/${newUser.username}`).set(userCredentials);
@@ -93,33 +94,37 @@ export const login = (request: any, response: any) => {
     });
 };
 
+/**
+ * Handles the upload of profile picture using busboy.
+ * @param request The request object
+ * @param response The response object
+ */
 export const uploadImage = (request: any, response: any) => {
   const BusBoy = require("busboy");
   const path = require("path");
   const os = require("os");
   const fs = require("fs");
 
-  const busboy = new BusBoy({ headers: request.headers });
+  let busboy = new BusBoy({ headers: request.headers });
 
   let imageFileName: string, imageToBeUploaded: any;
-  let generatedToken = "";
 
   busboy.on(
     "file",
     (
-      fieldName: any,
+      fieldname: any,
       file: any,
-      fileName: string,
+      filename: any,
       encoding: any,
-      mimeType: string
+      mimetype: any
     ) => {
-      if (mimeType !== "image/jpeg" && mimeType !== "image/png") {
+      if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
         return response
           .status(400)
           .json({ error: "Wrong file type submitted" });
       }
 
-      const imageFileNameParts = fileName.split(".");
+      const imageFileNameParts = filename.split(".");
       const imageExtension = imageFileNameParts[imageFileNameParts.length - 1];
 
       // 2532453453400.jpg
@@ -128,8 +133,7 @@ export const uploadImage = (request: any, response: any) => {
       ).toString()}.${imageExtension}`;
 
       const filePath = path.join(os.tmpdir(), imageFileName);
-
-      imageToBeUploaded = { filePath, mimeType };
+      imageToBeUploaded = { filePath, mimetype };
       file.pipe(fs.createWriteStream(filePath));
     }
   );
@@ -141,12 +145,13 @@ export const uploadImage = (request: any, response: any) => {
       .upload(imageToBeUploaded.filePath, {
         resumable: false,
         metadata: {
-          contentType: imageToBeUploaded.mimeType,
-          firebaseStorageDownloadTokens: generatedToken,
+          metadata: {
+            contentType: imageToBeUploaded.mimeType,
+          },
         },
       })
       .then(() => {
-        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageFileName}?alt=media&token=${generatedToken}`;
+        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageFileName}?alt=media`;
         return db.doc(`/users/${request.user.username}`).update({ imageUrl });
       })
       .then(() => {
