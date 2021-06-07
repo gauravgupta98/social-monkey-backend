@@ -34,7 +34,7 @@ app.get("/getPosts", (_request, response) => {
 app.post("/createPost", Authorize, (request, response) => {
   const newPost = {
     body: request.body.body,
-    username: request.body.username,
+    username: request.user.username,
     createdAt: new Date().toISOString(),
   };
 

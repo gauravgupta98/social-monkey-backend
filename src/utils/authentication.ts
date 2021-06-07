@@ -4,6 +4,12 @@ import db, { firebaseConfig } from "./firebase";
 
 admin.initializeApp(firebaseConfig);
 
+/**
+ * Authorizes any request by validating the authorization header from request object.
+ * @param request The request object
+ * @param response The response object
+ * @param next The callback function which will be executed if authorization is successful.
+ */
 export default (request: any, response: any, next: Function) => {
   let idToken;
   if (
