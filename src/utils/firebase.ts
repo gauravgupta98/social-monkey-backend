@@ -2,6 +2,8 @@
 import * as firebase from "firebase";
 import admin from "firebase-admin";
 
+const serviceAccount: admin.ServiceAccount = require("./socialmonkeys.json");
+
 export const firebaseConfig = {
   apiKey: "AIzaSyDgkWn5izw3H9eMDWTUYQadacWrwsrhQFI",
   authDomain: "socialmonkeysss.firebaseapp.com",
@@ -11,11 +13,14 @@ export const firebaseConfig = {
   appId: "1:733973400570:web:58fd72f030dbca09167243",
 };
 
-admin.initializeApp(firebaseConfig);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: firebaseConfig.storageBucket,
+});
 
 const firebaseApp = firebase.default.initializeApp(firebaseConfig);
-const db = firebaseApp.firestore();
 
+const db = firebaseApp.firestore();
 const auth = firebase.default.auth();
 
 export { auth, admin };

@@ -3,9 +3,10 @@ import Busboy from "busboy";
 import path from "path";
 import fs from "fs";
 import os from "os";
+import { v4 as uuidv4 } from "uuid";
 
-import { UserDataLogin, UserDataSignUp } from "../types";
 import db, { admin, auth, firebaseConfig } from "../utils/firebase";
+import { UserDataLogin, UserDataSignUp } from "../types";
 import { validateLoginData, validateSignupData } from "../utils/validator";
 
 /**
@@ -108,6 +109,7 @@ export const login = (request: Request, response: Response) => {
 export const uploadImage = (request: Request, response: Response) => {
   let imageFileName: string, imageToBeUploaded: any;
   const busboy = new Busboy({ headers: request.headers });
+  let generatedToken = uuidv4();
 
   busboy.on(
     "file",
@@ -147,11 +149,12 @@ export const uploadImage = (request: Request, response: Response) => {
         metadata: {
           metadata: {
             contentType: imageToBeUploaded.mimeType,
+            firebaseStorageDownloadTokens: generatedToken,
           },
         },
       })
       .then(() => {
-        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageFileName}?alt=media`;
+        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageFileName}?alt=media&token=${generatedToken}`;
         return db.doc(`/users/${request.user.username}`).update({ imageUrl });
       })
       .then(() => {
