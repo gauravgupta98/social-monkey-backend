@@ -1,3 +1,5 @@
+import { Request, Response } from "express";
+
 import db from "../utils/firebase";
 import { Post } from "../types";
 
@@ -6,7 +8,7 @@ import { Post } from "../types";
  * @param request The request object
  * @param response The response object
  */
-export const getPosts = (_request: any, response: any) => {
+export const getPosts = (_request: Request, response: Response) => {
   db.collection("posts")
     .orderBy("createdAt", "desc")
     .get()
@@ -25,7 +27,7 @@ export const getPosts = (_request: any, response: any) => {
  * @param request The request object
  * @param response The response object
  */
-export const createPost = (request: any, response: any) => {
+export const createPost = (request: Request, response: Response) => {
   const newPost = {
     body: request.body.body,
     username: request.user.username,

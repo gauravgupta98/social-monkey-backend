@@ -1,3 +1,9 @@
+import { Request, Response } from "express";
+import Busboy from "busboy";
+import path from "path";
+import fs from "fs";
+import os from "os";
+
 import { UserDataLogin, UserDataSignUp } from "../types";
 import db, { admin, auth, firebaseConfig } from "../utils/firebase";
 import { validateLoginData, validateSignupData } from "../utils/validator";
@@ -7,7 +13,7 @@ import { validateLoginData, validateSignupData } from "../utils/validator";
  * @param request The request object
  * @param response The response object
  */
-export const signUp = (request: any, response: any) => {
+export const signUp = (request: Request, response: Response) => {
   const newUser: UserDataSignUp = {
     email: request.body.email,
     password: request.body.password,
@@ -68,7 +74,7 @@ export const signUp = (request: any, response: any) => {
  * @param request The request object
  * @param response The response object
  */
-export const login = (request: any, response: any) => {
+export const login = (request: Request, response: Response) => {
   const user: UserDataLogin = {
     email: request.body.email,
     password: request.body.password,
@@ -99,24 +105,18 @@ export const login = (request: any, response: any) => {
  * @param request The request object
  * @param response The response object
  */
-export const uploadImage = (request: any, response: any) => {
-  const BusBoy = require("busboy");
-  const path = require("path");
-  const os = require("os");
-  const fs = require("fs");
-
-  let busboy = new BusBoy({ headers: request.headers });
-
+export const uploadImage = (request: Request, response: Response) => {
   let imageFileName: string, imageToBeUploaded: any;
+  const busboy = new Busboy({ headers: request.headers });
 
   busboy.on(
     "file",
     (
-      fieldname: any,
-      file: any,
-      filename: any,
-      encoding: any,
-      mimetype: any
+      fieldname: string,
+      file: NodeJS.ReadableStream,
+      filename: string,
+      encoding: string,
+      mimetype: string
     ) => {
       if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
         return response
@@ -155,7 +155,7 @@ export const uploadImage = (request: any, response: any) => {
         return db.doc(`/users/${request.user.username}`).update({ imageUrl });
       })
       .then(() => {
-        return response.json({
+        return response.status(200).json({
           message: "Profile picture uploaded successfully",
         });
       })
@@ -167,5 +167,5 @@ export const uploadImage = (request: any, response: any) => {
       });
   });
 
-  busboy.end(request.rawBody);
+  request.pipe(busboy);
 };
