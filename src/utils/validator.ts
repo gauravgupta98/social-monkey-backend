@@ -87,14 +87,26 @@ const validateLoginData = (data: UserDataLogin) => {
  * @returns Object with user details - bio, website, location.
  */
 const reduceUserDetails = (data: AdditionalUserData) => {
-  let userDetails: AdditionalUserData = {
-    bio: data?.bio?.trim(),
-    website: data?.website?.trim(),
-    location: data?.location?.trim(),
-  };
+  let userDetails: AdditionalUserData = {};
 
-  if (userDetails.website?.substring(0, 4) !== "http") {
-    userDetails.website = `http://${data.website}`;
+  let bio: string | undefined = data?.bio?.trim();
+  let website: string | undefined = data?.website?.trim();
+  let location: string | undefined = data?.location?.trim();
+
+  if (bio !== undefined && !isEmpty(bio)) {
+    userDetails.bio = bio;
+  }
+
+  if (website !== undefined && !isEmpty(website)) {
+    if (website.substring(0, 4) !== "http") {
+      userDetails.website = `http://${website}`;
+    } else {
+      userDetails.website = website;
+    }
+  }
+
+  if (location !== undefined && !isEmpty(location)) {
+    userDetails.location = location;
   }
 
   return userDetails;

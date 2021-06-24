@@ -187,5 +187,9 @@ export const addUserDetails = (request: Request, response: Response) => {
 
   db.doc(`/users/${request.user.username}`)
     .update(userDetails)
-    .then(() => response.json({ message: "Details added successfully" }));
+    .then(() => response.json({ message: "Details updated successfully" }))
+    .catch((error) => {
+      console.error(error);
+      return response.status(500).json({ error: error.code });
+    });
 };
