@@ -1,4 +1,4 @@
-import { UserDataLogin, UserDataSignUp } from "../types";
+import { AdditionalUserData, UserDataLogin, UserDataSignUp } from "../types";
 
 /**
  * Validates the email
@@ -81,4 +81,23 @@ const validateLoginData = (data: UserDataLogin) => {
   };
 };
 
-export { validateSignupData, validateLoginData };
+/**
+ * Extracts the non mandatory user details from the data passed.
+ * @param data The user data object
+ * @returns Object with user details - bio, website, location.
+ */
+const reduceUserDetails = (data: AdditionalUserData) => {
+  let userDetails: AdditionalUserData = {
+    bio: data?.bio?.trim(),
+    website: data?.website?.trim(),
+    location: data?.location?.trim(),
+  };
+
+  if (userDetails.website?.substring(0, 4) !== "http") {
+    userDetails.website = `http://${data.website}`;
+  }
+
+  return userDetails;
+};
+
+export { reduceUserDetails, validateSignupData, validateLoginData };

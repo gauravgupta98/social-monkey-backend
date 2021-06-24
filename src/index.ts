@@ -4,7 +4,7 @@ import cors from "cors";
 import Authorize from "./utils/authentication";
 
 import { createPost, getPosts } from "./handlers/posts";
-import { login, signUp, uploadImage } from "./handlers/users";
+import { login, signUp, uploadImage, addUserDetails } from "./handlers/users";
 
 const app = express();
 
@@ -21,5 +21,6 @@ app.post("/createPost", Authorize, createPost);
 app.post("/signUp", signUp);
 app.post("/login", login);
 app.post("/user/image", Authorize, uploadImage);
+app.post("/user", Authorize, addUserDetails);
 
 app.listen(PORT, () => console.log(`Server is up and running!`));

@@ -17,6 +17,12 @@ export interface UserDataLogin {
   password: string;
 }
 
+export interface AdditionalUserData {
+  bio?: string | undefined;
+  website?: string | undefined;
+  location?: string | undefined;
+}
+
 export interface User {
   username: string;
   email: string;

@@ -7,7 +7,11 @@ import { v4 as uuidv4 } from "uuid";
 
 import db, { admin, auth, firebaseConfig } from "../utils/firebase";
 import { UserDataLogin, UserDataSignUp } from "../types";
-import { validateLoginData, validateSignupData } from "../utils/validator";
+import {
+  reduceUserDetails,
+  validateLoginData,
+  validateSignupData,
+} from "../utils/validator";
 
 /**
  * Implements the signing up of new user. Returns an authorization token if user is signed up successfully.
@@ -171,4 +175,17 @@ export const uploadImage = (request: Request, response: Response) => {
   });
 
   request.pipe(busboy);
+};
+
+/**
+ * Handles any updates related to user details.
+ * @param request The request object
+ * @param response The response object
+ */
+export const addUserDetails = (request: Request, response: Response) => {
+  let userDetails = reduceUserDetails(request.body);
+
+  db.doc(`/users/${request.user.username}`)
+    .update(userDetails)
+    .then(() => response.json({ message: "Details added successfully" }));
 };
