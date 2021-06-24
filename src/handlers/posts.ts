@@ -75,14 +75,13 @@ export const getPost = (request: Request, response: Response) => {
 
       return db
         .collection("comments")
-        .orderBy("createdAt", "desc")
         .where("postId", "==", request.params.postId)
         .get();
     })
     .then((data) => {
       postData.comments = [];
       data?.forEach((doc) => postData.comments.push(doc.data()));
-      return response.json(postData);
+      return response.status(200).json(postData);
     })
     .catch((error) => {
       console.error(error);
