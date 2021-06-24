@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { request, Request, Response } from "express";
 import Busboy from "busboy";
 import path from "path";
 import fs from "fs";
@@ -182,12 +182,41 @@ export const uploadImage = (request: Request, response: Response) => {
  * @param request The request object
  * @param response The response object
  */
-export const addUserDetails = (request: Request, response: Response) => {
+export const updateUserDetails = (request: Request, response: Response) => {
   let userDetails = reduceUserDetails(request.body);
 
   db.doc(`/users/${request.user.username}`)
     .update(userDetails)
     .then(() => response.json({ message: "Details updated successfully" }))
+    .catch((error) => {
+      console.error(error);
+      return response.status(500).json({ error: error.code });
+    });
+};
+
+/**
+ * Gets the user details of logged in user.
+ * @param request The request object
+ * @param response The response object
+ */
+export const getAuthenticatedUser = (request: Request, response: Response) => {
+  let userData: any = {};
+  db.doc(`/users/${request.user.username}`)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        userData.credentials = doc.data();
+        return db
+          .collection("likes")
+          .where("userHandle", "==", request.user.username)
+          .get();
+      }
+    })
+    .then((data) => {
+      userData.likes = [];
+      data?.forEach((doc) => userData.likes.push(doc.data()));
+      return response.json(userData);
+    })
     .catch((error) => {
       console.error(error);
       return response.status(500).json({ error: error.code });

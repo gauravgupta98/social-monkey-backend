@@ -54,3 +54,38 @@ export const createPost = (request: Request, response: Response) => {
         .json({ error: `Something went wrong. Error: ${error.code}` });
     });
 };
+
+/**
+ * Gets post by postId.
+ * @param request The request object
+ * @param response The response object
+ */
+export const getPost = (request: Request, response: Response) => {
+  let postData: any = {};
+
+  db.doc(`/posts/${request.params.postId}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        response.status(404).json({ error: "Post not found" });
+      }
+
+      postData = doc.data();
+      postData.screamId = doc.id;
+
+      return db
+        .collection("comments")
+        .orderBy("createdAt", "desc")
+        .where("postId", "==", request.params.postId)
+        .get();
+    })
+    .then((data) => {
+      postData.comments = [];
+      data?.forEach((doc) => postData.comments.push(doc.data()));
+      return response.json(postData);
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: error.code });
+    });
+};
