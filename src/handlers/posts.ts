@@ -75,6 +75,7 @@ export const getPost = (request: Request, response: Response) => {
 
       return db
         .collection("comments")
+        .orderBy("createdAt", "desc")
         .where("postId", "==", request.params.postId)
         .get();
     })
