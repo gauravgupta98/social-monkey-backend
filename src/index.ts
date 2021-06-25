@@ -3,7 +3,7 @@ import cors from "cors";
 
 import Authorize from "./utils/authentication";
 
-import { createPost, getPosts, getPost } from "./handlers/posts";
+import { createPost, getPosts, getPost, commentOnPost } from "./handlers/posts";
 import {
   getAuthenticatedUser,
   login,
@@ -21,14 +21,17 @@ const PORT = process.env.PORT || 5000;
 
 // Post routes
 app.get("/getPosts", getPosts);
-app.post("/createPost", Authorize, createPost);
 app.get("/post/:postId", getPost);
 
+app.post("/createPost", Authorize, createPost);
+app.post("/post/:postId/comment", Authorize, commentOnPost);
+
 // User routes
+app.get("/user", Authorize, getAuthenticatedUser);
+
 app.post("/signUp", signUp);
 app.post("/login", login);
 app.post("/user/image", Authorize, uploadImage);
 app.post("/user/update", Authorize, updateUserDetails);
-app.get("/user", Authorize, getAuthenticatedUser);
 
 app.listen(PORT, () => console.log(`Server is up and running!`));

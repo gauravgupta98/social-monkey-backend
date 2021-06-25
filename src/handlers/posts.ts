@@ -89,3 +89,20 @@ export const getPost = (request: Request, response: Response) => {
       response.status(500).json({ error: error.code });
     });
 };
+
+/**
+ * Handles commenting on a post.
+ * @param request The request object
+ * @param response The response object
+ */
+export const commentOnPost = (request: Request, response: Response) => {
+  if (request.body?.body?.trim() === "")
+    return response.status(400).json({ comment: "Must not be empty" });
+
+  const newComment = {
+    body: request.body.body,
+    createdAt: new Date().toISOString(),
+    postId: request.params.postId,
+    username: request.user.username,
+  };
+};
