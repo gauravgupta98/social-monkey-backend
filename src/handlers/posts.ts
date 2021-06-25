@@ -71,7 +71,7 @@ export const getPost = (request: Request, response: Response) => {
       }
 
       postData = doc.data();
-      postData.screamId = doc.id;
+      postData.postId = doc.id;
 
       return db
         .collection("comments")
@@ -107,7 +107,7 @@ export const commentOnPost = (request: Request, response: Response) => {
     imageUrl: request.user.imageUrl,
   };
 
-  db.doc(`/posts/${request.params?.screamId}`)
+  db.doc(`/posts/${request.params?.postId}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
