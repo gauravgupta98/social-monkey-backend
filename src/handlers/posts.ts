@@ -104,5 +104,25 @@ export const commentOnPost = (request: Request, response: Response) => {
     createdAt: new Date().toISOString(),
     postId: request.params.postId,
     username: request.user.username,
+    imageUrl: request.user.imageUrl,
   };
+
+  db.doc(`/posts/${request.params?.screamId}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        response.status(404).json({ error: "Post not found" });
+      }
+      return doc.ref.update({ commentCount: doc?.data()?.commentCount + 1 });
+    })
+    .then(() => {
+      return db.collection("comments").add(newComment);
+    })
+    .then(() => {
+      return response.json(newComment);
+    })
+    .catch((err) => {
+      console.log(err);
+      response.status(500).json({ error: "Something went wrong" });
+    });
 };

@@ -32,6 +32,7 @@ export default (request: any, response: any, next: Function) => {
     })
     .then((data) => {
       request.user.username = data.docs[0]?.data()?.username;
+      request.user.imageUrl = data.docs[0]?.data()?.imageUrl;
       return next();
     })
     .catch((error) => {
