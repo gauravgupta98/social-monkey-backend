@@ -113,7 +113,11 @@ export const commentOnPost = (request: Request, response: Response) => {
       if (!doc.exists) {
         response.status(404).json({ error: "Post not found" });
       }
-      return doc.ref.update({ commentCount: doc?.data()?.commentCount + 1 });
+      return doc.ref.update({
+        commentCount: doc?.data()?.commentCount
+          ? doc?.data()?.commentCount + 1
+          : 1,
+      });
     })
     .then(() => {
       return db.collection("comments").add(newComment);
@@ -126,3 +130,10 @@ export const commentOnPost = (request: Request, response: Response) => {
       response.status(500).json({ error: "Something went wrong" });
     });
 };
+
+/**
+ * Handles liking a post.
+ * @param request The request object
+ * @param response The response object
+ */
+export const likePost = (request: Request, response: Response) => {};

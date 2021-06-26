@@ -3,7 +3,13 @@ import cors from "cors";
 
 import Authorize from "./utils/authentication";
 
-import { createPost, getPosts, getPost, commentOnPost } from "./handlers/posts";
+import {
+  createPost,
+  getPosts,
+  getPost,
+  commentOnPost,
+  likePost,
+} from "./handlers/posts";
 import {
   getAuthenticatedUser,
   login,
@@ -25,6 +31,7 @@ app.get("/post/:postId", getPost);
 
 app.post("/createPost", Authorize, createPost);
 app.post("/post/:postId/comment", Authorize, commentOnPost);
+app.post("/post/:postId/like", Authorize, likePost);
 
 // User routes
 app.get("/user", Authorize, getAuthenticatedUser);
