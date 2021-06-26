@@ -31,7 +31,10 @@ export const createPost = (request: Request, response: Response) => {
   const newPost = {
     body: request.body.body,
     username: request.user.username,
+    userImage: request.user.imageUrl,
     createdAt: new Date().toISOString(),
+    likeCount: 0,
+    commentCount: 0,
   };
 
   if (newPost.body === undefined || newPost.body.trim() === "") {
@@ -43,9 +46,7 @@ export const createPost = (request: Request, response: Response) => {
   db.collection("posts")
     .add(newPost)
     .then((doc) => {
-      return response
-        .status(200)
-        .json({ message: `Post ${doc.id} created successfully` });
+      return response.status(200).json({ postId: doc.id, ...newPost });
     })
     .catch((error) => {
       console.error(error);
@@ -114,9 +115,7 @@ export const commentOnPost = (request: Request, response: Response) => {
         response.status(404).json({ error: "Post not found" });
       }
       return doc.ref.update({
-        commentCount: doc?.data()?.commentCount
-          ? doc?.data()?.commentCount + 1
-          : 1,
+        commentCount: doc?.data()?.commentCount + 1,
       });
     })
     .then(() => {
@@ -136,4 +135,47 @@ export const commentOnPost = (request: Request, response: Response) => {
  * @param request The request object
  * @param response The response object
  */
-export const likePost = (request: Request, response: Response) => {};
+export const likePost = (request: Request, response: Response) => {
+  const likeDocument = db
+    .collection("likes")
+    .where("username", "==", request.user.username)
+    .where("postId", "==", request.params.postId)
+    .limit(1);
+
+  const postDocument = db.doc(`/posts/${request.params.postId}`);
+
+  let postData: any;
+
+  postDocument
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        postData = doc.data();
+        postData.postId = doc.id;
+        return likeDocument.get();
+      } else {
+        response.status(404).json({ error: "Post not found" });
+      }
+    })
+    .then((data) => {
+      if (data?.empty) {
+        return db
+          .collection("likes")
+          .add({
+            postId: request.params.postId,
+            username: request.user.username,
+          })
+          .then(() => {
+            postData.likeCount++;
+            return postDocument.update({ likeCount: postData.likeCount });
+          })
+          .then(() => response.json(postData));
+      } else {
+        response.status(400).json({ error: "Post already liked" });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: error.code });
+    });
+};
