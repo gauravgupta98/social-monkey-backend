@@ -136,6 +136,29 @@ export const commentOnPost = (request: Request, response: Response) => {
  * @param response The response object
  */
 export const likePost = (request: Request, response: Response) => {
+  return handleLikeUnlike(request, response, true);
+};
+
+/**
+ * Handles unliking a post.
+ * @param request The request object
+ * @param response The response object
+ */
+export const unlikePost = (request: Request, response: Response) => {
+  return handleLikeUnlike(request, response, false);
+};
+
+/**
+ * Handles liking and unliking a post.
+ * @param request The request object
+ * @param response The response object
+ * @param likePost Pass true if liking a post, else false
+ */
+const handleLikeUnlike = (
+  request: Request,
+  response: Response,
+  likePost: boolean
+) => {
   const likeDocument = db
     .collection("likes")
     .where("username", "==", request.user.username)
@@ -158,20 +181,37 @@ export const likePost = (request: Request, response: Response) => {
       }
     })
     .then((data) => {
-      if (data?.empty) {
-        return db
-          .collection("likes")
-          .add({
-            postId: request.params.postId,
-            username: request.user.username,
-          })
-          .then(() => {
-            postData.likeCount++;
-            return postDocument.update({ likeCount: postData.likeCount });
-          })
-          .then(() => response.json(postData));
+      if (likePost) {
+        // Like a post
+        if (data?.empty) {
+          return db
+            .collection("likes")
+            .add({
+              postId: request.params.postId,
+              username: request.user.username,
+            })
+            .then(() => {
+              postData.likeCount++;
+              return postDocument.update({ likeCount: postData.likeCount });
+            })
+            .then(() => response.json(postData));
+        } else {
+          response.status(400).json({ error: "Post already liked" });
+        }
       } else {
-        response.status(400).json({ error: "Post already liked" });
+        // Unlike a post
+        if (data?.empty) {
+          response.status(400).json({ error: "Post not liked" });
+        } else {
+          return db
+            .doc(`/likes/${data?.docs[0].id}`)
+            .delete()
+            .then(() => {
+              postData.likeCount--;
+              return postDocument.update({ likeCount: postData.likeCount });
+            })
+            .then(() => response.json(postData));
+        }
       }
     })
     .catch((error) => {
