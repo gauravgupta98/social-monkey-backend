@@ -2,7 +2,7 @@
 import * as firebase from "firebase";
 import admin from "firebase-admin";
 
-const serviceAccount: admin.ServiceAccount = require("./socialmonkeys.json");
+import * as serviceAccount from "./socialmonkeys.json";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyDgkWn5izw3H9eMDWTUYQadacWrwsrhQFI",
@@ -14,7 +14,7 @@ export const firebaseConfig = {
 };
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(<admin.ServiceAccount>serviceAccount),
   storageBucket: firebaseConfig.storageBucket,
 });
 
