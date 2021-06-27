@@ -10,6 +10,7 @@ import {
   commentOnPost,
   likePost,
   unlikePost,
+  deletePost,
 } from "./handlers/posts";
 import {
   getAuthenticatedUser,
@@ -34,6 +35,8 @@ app.post("/createPost", Authorize, createPost);
 app.post("/post/:postId/comment", Authorize, commentOnPost);
 app.post("/post/:postId/like", Authorize, likePost);
 app.post("/post/:postId/unlike", Authorize, unlikePost);
+
+app.delete("/post/:postId", Authorize, deletePost);
 
 // User routes
 app.get("/user", Authorize, getAuthenticatedUser);

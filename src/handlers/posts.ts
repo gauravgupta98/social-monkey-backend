@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 
 import db from "../utils/firebase";
 import { Post } from "../types";
@@ -217,5 +217,33 @@ const handleLikeUnlike = (
     .catch((error) => {
       console.error(error);
       response.status(500).json({ error: error.code });
+    });
+};
+
+/**
+ * Handles deleting a post.
+ * @param request The request object
+ * @param response The response object
+ */
+export const deletePost = (request: Request, response: Response) => {
+  const document = db.doc(`/posts/${request.params.postId}`);
+
+  document
+    .get()
+    .then((doc) => {
+      if (!doc?.exists) {
+        response.status(404).json({ error: "Post not found" });
+      }
+
+      if (doc?.data()?.username !== request.user.username) {
+        response.status(403).json({ error: "Unauthorized" });
+      } else {
+        return document.delete();
+      }
+    })
+    .then(() => response.json({ message: "Post deleted successfully" }))
+    .catch((error) => {
+      console.error(error);
+      return response.status(500).json({ error: error.code });
     });
 };
