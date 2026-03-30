@@ -25,7 +25,7 @@
     "busboy": "^0.3.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
-    "express": "^4.21.2",
+    "express": "^4.22.1",
     "firebase": "^12.7.0",
     "firebase-admin": "^11.4.1",
     "rimraf": "^3.0.2",
